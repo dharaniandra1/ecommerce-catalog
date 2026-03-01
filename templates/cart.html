@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cart</title>
+</head>
+<body>
+
+<h1>Your Cart</h1>
+
+{% if cart %}
+   {% for item in cart %}
+<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+
+    <h3>{{ item.name }}</h3>
+
+    <p>Price: ₹{{ item.price }}</p>
+
+    <!-- Quantity Form -->
+    <form action="/update_quantity/{{ loop.index0 }}" method="POST">
+        <input type="number"
+               name="quantity"
+               value="{{ item.quantity }}"
+               min="1"
+               style="width:60px;">
+        <button type="submit">Update</button>
+    </form>
+
+    <p>Subtotal: ₹{{ item.price * item.quantity }}</p>
+
+    <a href="/remove_from_cart/{{ loop.index0 }}">
+        <button style="background:red; color:white;">Remove</button>
+    </a>
+
+</div>
+{% endfor %}
+
+    <h3>Total: ₹{{ total }}</h3>
+    
+
+{% else %}
+    <p>Cart is empty</p>
+{% endif %}
+
+<a href="/">Back to Shop</a>
+<a href="/payment">
+    <button style="padding:10px; background:green; color:white;">
+        Proceed to Payment
+    </button>
+</a>
+</body>
+</html>

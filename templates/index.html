@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MyShop</title>
+    <a href="/cart" style="float:right;">View Cart</a>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1 class="title">MyShop</h1>
+<h2>Search Product</h2>
+
+<input type="text" id="searchInput" placeholder="Search products..." 
+       onkeyup="searchProducts()" 
+       style="padding:8px; width:300px; margin-bottom:15px;">
+
+
+
+<h2>Filter by Category</h2>
+
+<div class="buttons">
+    <button onclick="filterProducts('All')">All</button>
+    <button onclick="filterProducts('Electronics')">Electronics</button>
+    <button onclick="filterProducts('Clothing')">Clothing</button>
+</div>
+
+<div class="products">
+
+{% for product in products %}
+<div class="card" data-category="{{ product.category }}">
+    
+    <img src="{{ product.image }}" width="200">
+    
+    <h3>{{ product.name }}</h3>
+    <p>₹{{ product.price }}</p>
+
+   <form action="/add_to_cart/{{ product.id }}" method="POST">
+
+    <button type="submit">Add to Cart</button>
+
+</form>
+
+    <h4>Add Review</h4>
+
+    <form action="/add_review/{{ product.id }}" method="POST">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="text" name="review" placeholder="Write Review" required>
+        <input type="number" name="rating" placeholder="Rating 1-5" min="1" max="5" required>
+        <button type="submit">Add Review</button>
+    </form>
+
+    <h4>Reviews:</h4>
+
+    {% for r in product.reviews %}
+        <div class="review-box">
+            <strong>{{ r.name }}</strong> (⭐ {{ r.rating }})<br>
+            {{ r.review }}
+        </div>
+    {% else %}
+        <p>No reviews yet</p>
+    {% endfor %}
+
+</div>
+{% endfor %}
+
+</div>
+<script>
+function filterProducts(category) {
+    let cards = document.querySelectorAll('.card');
+
+    cards.forEach(card => {
+        if (category === 'All' || card.dataset.category === category) {
+            card.style.display = "block";
+        } else {
+            card.style.display = "none";
+        }
+    });
+}
+
+function searchProducts() {
+    let input = document.getElementById("searchInput").value.toLowerCase();
+    let cards = document.querySelectorAll(".card");
+
+    cards.forEach(card => {
+        let productName = card.querySelector("h3").innerText.toLowerCase();
+
+        if (productName.includes(input)) {
+            card.style.display = "block";
+        } else {
+            card.style.display = "none";
+        }
+    });
+}
+</script>
+
+
+</body>
+</html>

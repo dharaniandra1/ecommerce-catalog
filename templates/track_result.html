@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Tracking</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #f9f9f9;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .timeline {
+            position: relative;
+            margin-left: 30px;
+            margin-top: 30px;
+        }
+
+        /* Vertical line */
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: #ccc;
+        }
+
+        .step {
+            position: relative;
+            margin-bottom: 50px;
+            padding-left: 40px;
+        }
+
+        /* Circle */
+        .step::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ccc;
+            z-index: 1;
+        }
+
+        .completed::before {
+            background: green;
+        }
+
+        .completed {
+            color: green;
+            font-weight: bold;
+        }
+
+        .time {
+            font-size: 14px;
+            color: gray;
+            margin-top: 5px;
+        }
+
+        button {
+            padding: 10px 18px;
+            background: green;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: darkgreen;
+        }
+
+        .link {
+            margin-top: 20px;
+            display: inline-block;
+        }
+    </style>
+
+</head>
+<body>
+
+<h2>Order Tracking</h2>
+
+{% if order_id and order %}
+
+<p><strong>Order ID:</strong> {{ order_id }}</p>
+
+<div class="timeline">
+
+    <!-- Order Placed -->
+    <div class="step completed">
+        🟡 Order Placed
+        <div class="time">
+            {{ order.placed_time.strftime("%d %b %Y, %I:%M %p") }}
+        </div>
+    </div>
+
+    <!-- Shipped -->
+    <div class="step {% if order.status == 'Shipped' or order.status == 'Delivered' %}completed{% endif %}">
+        🚚 Shipped
+        {% if order.shipped_time %}
+        <div class="time">
+            {{ order.shipped_time.strftime("%d %b %Y, %I:%M %p") }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Delivered -->
+    <div class="step {% if order.status == 'Delivered' %}completed{% endif %}">
+        ✅ Delivered
+        {% if order.delivered_time %}
+        <div class="time">
+            {{ order.delivered_time.strftime("%d %b %Y, %I:%M %p") }}
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<br>
+
+
+
+{% else %}
+<p>❌ Invalid Order ID</p>
+{% endif %}
+
+<br><br>
+
+<a class="link" href="/track">Track Another Order</a>
+
+<script>
+    function checkStatus() {
+        fetch("/get_status/{{ order_id }}")
+        .then(response => response.json())
+        .then(data => {
+            if (data.status) {
+                location.reload();
+            }
+        });
+    }
+
+    // Check every 5 seconds
+    setInterval(checkStatus, 5000);
+</script>
+</body>
+</html>
